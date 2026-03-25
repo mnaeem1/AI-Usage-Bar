@@ -4,6 +4,11 @@
   "description": "Status bar showing AI usage for Claude, OpenAI/Codex, and GitHub Copilot Chat",
   "version": "0.1.0",
   "publisher": "ai-usage-bar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MohammadNaeem/AI-Usage-Bar"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -65,8 +70,7 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "lint": "eslint src --ext ts"
+    "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",

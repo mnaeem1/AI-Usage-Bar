@@ -68,7 +68,8 @@ function runCommand<T>(cmd: string): Promise<T | null> {
 
 /** Render a progress bar of given width using █ (filled) and ░ (empty). */
 function renderBar(pct: number, width = 8): string {
-  const filled = Math.round((pct / 100) * width);
+  const clamped = Math.min(100, Math.max(0, pct));
+  const filled = Math.round((clamped / 100) * width);
   const empty = width - filled;
   return '[' + '█'.repeat(filled) + '░'.repeat(empty) + ']';
 }
@@ -180,6 +181,7 @@ export function activate(context: vscode.ExtensionContext): void {
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   statusBar.text = '$(sync~spin) AI Usage…';
   statusBar.tooltip = 'AI Usage Bar – loading…';
+  statusBar.command = 'aiUsage.refresh';
   statusBar.show();
   context.subscriptions.push(statusBar);
 
@@ -211,15 +213,43 @@ export function activate(context: vscode.ExtensionContext): void {
       const maxPct = Math.max(...allPcts);
 
       if (maxPct >= 90) {
-        statusBar.color = '#ff4444';
+        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
       } else if (maxPct >= 80) {
-        statusBar.color = '#ff9800';
+        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
       } else {
-        statusBar.color = undefined;
+        statusBar.backgroundColor = undefined;
       }
+      statusBar.color = undefined;
 
-      statusBar.text = [claude.text, openai.text, copilot.text].join('  ');
-      statusBar.tooltip = `AI Usage Bar – last updated ${new Date().toLocaleTimeString()}`;
+      // Short text for the status bar; full detail goes in the tooltip
+      const shortParts: string[] = [];
+      if (claude.maxPct > 0 || claude.text.indexOf('n/a') === -1) {
+        shortParts.push(`Claude ${Math.round(claude.maxPct)}%`);
+      } else {
+        shortParts.push('Claude n/a');
+      }
+      if (openai.maxPct > 0 || openai.text.indexOf('n/a') === -1) {
+        shortParts.push(`OpenAI ${Math.round(openai.maxPct)}%`);
+      } else {
+        shortParts.push('OpenAI n/a');
+      }
+      if (copilot.maxPct > 0 || copilot.text.indexOf('n/a') === -1) {
+        shortParts.push(`Copilot ${Math.round(copilot.maxPct)}%`);
+      } else {
+        shortParts.push('Copilot n/a');
+      }
+      statusBar.text = `$(pulse) ${shortParts.join(' | ')}`;
+
+      // Rich markdown tooltip with full details
+      const tip = new vscode.MarkdownString('', true);
+      tip.isTrusted = true;
+      tip.appendMarkdown(`**AI Usage Bar** &mdash; _${new Date().toLocaleTimeString()}_\n\n`);
+      tip.appendMarkdown(`---\n\n`);
+      tip.appendMarkdown(`**Claude:** ${claude.text}\n\n`);
+      tip.appendMarkdown(`**OpenAI:** ${openai.text}\n\n`);
+      tip.appendMarkdown(`**Copilot:** ${copilot.text}\n\n`);
+      tip.appendMarkdown(`---\n\n_Click to refresh_`);
+      statusBar.tooltip = tip;
     } catch (err) {
       log(`Unexpected error during refresh: ${(err as Error).message}`);
     } finally {
@@ -238,7 +268,8 @@ export function activate(context: vscode.ExtensionContext): void {
 
   // Polling interval – reads refreshSeconds at start/restart time; config changes restart the timer
   function startInterval(): NodeJS.Timeout {
-    const secs: number = vscode.workspace.getConfiguration().get('aiUsage.refreshSeconds', 60);
+    const raw: number = vscode.workspace.getConfiguration().get('aiUsage.refreshSeconds', 60);
+    const secs = Math.max(5, raw);
     return setInterval(() => void refresh(), secs * 1000);
   }
 
