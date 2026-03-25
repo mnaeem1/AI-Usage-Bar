@@ -1,0 +1,76 @@
+{
+  "name": "ai-usage-bar",
+  "displayName": "AI Usage Bar",
+  "description": "Status bar showing AI usage for Claude, OpenAI/Codex, and GitHub Copilot Chat",
+  "version": "0.1.0",
+  "publisher": "ai-usage-bar",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "aiUsage.refresh",
+        "title": "AI Usage: Refresh Now"
+      }
+    ],
+    "configuration": {
+      "title": "AI Usage Bar",
+      "properties": {
+        "aiUsage.refreshSeconds": {
+          "type": "number",
+          "default": 60,
+          "description": "How often (in seconds) to poll usage data."
+        },
+        "claudeUsage.command": {
+          "type": "string",
+          "default": "claude-code --status --json",
+          "description": "Command to fetch Claude usage JSON."
+        },
+        "claudeUsage.contextCommand": {
+          "type": "string",
+          "default": "claude-code --context --json",
+          "description": "Command to fetch Claude context window JSON."
+        },
+        "openaiUsage.command": {
+          "type": "string",
+          "default": "openai-usage --json",
+          "description": "Command to fetch OpenAI usage JSON."
+        },
+        "openaiUsage.contextCommand": {
+          "type": "string",
+          "default": "openai-model --info --json",
+          "description": "Command to fetch OpenAI context window JSON."
+        },
+        "copilotUsage.command": {
+          "type": "string",
+          "default": "copilot-usage --json",
+          "description": "Command to fetch Copilot usage JSON."
+        },
+        "copilotUsage.contextCommand": {
+          "type": "string",
+          "default": "copilot-model --info --json",
+          "description": "Command to fetch Copilot context window JSON."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}
