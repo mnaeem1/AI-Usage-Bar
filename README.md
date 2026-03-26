@@ -1,82 +1,88 @@
 # AI Usage Bar
 
-A minimal VS Code extension that displays a single status bar item showing AI usage for **Claude**, **OpenAI/Codex**, and **GitHub Copilot Chat**, including context-window information when available.
+AI Usage Bar shows AI quota usage in the VS Code status bar for:
 
-## Status Bar Example
+- Claude Code
+- OpenAI Codex
+- GitHub Copilot
 
-```
-Claude 5H [██░░░░░░] 42% 1h20m | 7D [███░░░░░] 58% 2d3h | Ctx 200k  OpenAI wk [███░░░░░] 35% 4d2h | Ctx 128k  Copilot wk [██░░░░░░] 25% 5d1h | Ctx n/a
-```
-
-**Color coding:**
-- Default color when all providers are below 80%
-- Orange (`#ff9800`) when any provider reaches ≥ 80%
-- Red (`#ff4444`) when any provider reaches ≥ 90%
+Built with Cursor and open for community contributions.
 
 ## Features
 
-- Polls all three AI providers on startup and every `aiUsage.refreshSeconds` seconds (default: 60).
-- Command **AI Usage: Refresh Now** to force an immediate refresh.
-- Graceful fallbacks: if a command fails or returns unexpected data, that provider shows `n/a`.
-- Context window displayed as `Ctx <value>` (e.g. `Ctx 200k`) or `Ctx n/a` if unavailable.
-- All errors logged to the **AI Usage** output channel.
+- Compact status bar view with detailed hover tooltip bars
+- Click status bar to refresh instantly
+- Provider-level toggles (enable only what you use)
+- Works across local, WSL, remote SSH, and Codespaces
+- Claude-safe rate limiting and caching to avoid API over-polling
+- Multiple auth fallback strategies per provider for reliability
+- Version displayed directly in tooltip
 
-## Requirements
+## Data Sources and Auth
 
-The extension calls configurable shell commands to fetch usage data.  The default commands (`claude-code`, `openai-usage`, `copilot-usage`) are placeholders – replace them with commands that return the expected JSON shapes.
+| Provider | Usage Source | Auth Source |
+|---|---|---|
+| Claude | `api.anthropic.com/api/oauth/usage` | `~/.claude/.credentials.json` or macOS Keychain |
+| Codex | `python -m codex_cli_usage json` (preferred), local auth fallback | `~/.codex/auth.json` |
+| Copilot | `api.github.com/copilot_internal/user` | VS Code GitHub session, then `gh auth token` fallback |
 
-### Expected JSON Shapes
+## Commands
 
-**Claude** (`claudeUsage.command`):
-```json
-{
-  "rate_limits": {
-    "five_hour": { "used_percentage": 42, "resets_at": 1700000000 },
-    "seven_day": { "used_percentage": 58, "resets_at": 1700100000 }
-  }
-}
-```
+| Command | Description |
+|---|---|
+| `AI Usage: Refresh Now` | Force immediate refresh |
+| `AI Usage: Sign in to GitHub (for Copilot)` | Trigger GitHub sign-in flow |
+| `AI Usage: Toggle Claude Provider` | Enable/disable Claude |
+| `AI Usage: Toggle Codex Provider` | Enable/disable Codex |
+| `AI Usage: Toggle Copilot Provider` | Enable/disable Copilot |
 
-**Claude context** (`claudeUsage.contextCommand`):
-```json
-{ "context_window": 200000 }
-```
-
-**OpenAI / Copilot** (`openaiUsage.command` / `copilotUsage.command`):
-```json
-{
-  "weekly": {
-    "used_percentage": 35,
-    "resets_at": 1700200000
-  }
-}
-```
-Or alternatively with `used` / `limit` fields:
-```json
-{ "weekly": { "used": 45, "limit": 128, "resets_at": 1700200000 } }
-```
-
-**OpenAI / Copilot context** (`openaiUsage.contextCommand` / `copilotUsage.contextCommand`):
-```json
-{ "context_window": 128000 }
-```
-
-## Extension Settings
+## Settings
 
 | Setting | Default | Description |
 |---|---|---|
-| `aiUsage.refreshSeconds` | `60` | Poll interval in seconds |
-| `claudeUsage.command` | `claude-code --status --json` | Command for Claude usage |
-| `claudeUsage.contextCommand` | `claude-code --context --json` | Command for Claude context window |
-| `openaiUsage.command` | `openai-usage --json` | Command for OpenAI usage |
-| `openaiUsage.contextCommand` | `openai-model --info --json` | Command for OpenAI context window |
-| `copilotUsage.command` | `copilot-usage --json` | Command for Copilot usage |
-| `copilotUsage.contextCommand` | `copilot-model --info --json` | Command for Copilot context window |
+| `aiUsage.refreshSeconds` | `120` | Poll interval in seconds (min 30) |
+| `aiUsage.claudeMinApiMinutes` | `5` | Minimum minutes between Claude API calls |
+| `aiUsage.providers.claude` | `true` | Enable Claude tracking |
+| `aiUsage.providers.codex` | `true` | Enable Codex tracking |
+| `aiUsage.providers.copilot` | `true` | Enable Copilot tracking |
+| `aiUsage.debugLogs` | `false` | Enable verbose logs in Output panel |
+
+## Status States
+
+| Indicator | Meaning |
+|---|---|
+| `⚠` | Provider not authenticated |
+| `✕` | API or network error |
+| `⏳` | Temporarily rate-limited |
+| `∞` | Unlimited plan |
+| `--` | Logged in, but provider returned no usage quota data |
+
+## Security Notes
+
+- Tokens are read from local auth stores and never written to disk by this extension.
+- Verbose logs are disabled by default (`aiUsage.debugLogs=false`).
+- The extension does not send data to any server other than provider APIs.
+
+## Request for Contributors
+
+Want to add another model/provider (for example Gemini, Perplexity, or others)?
+Open an issue or PR. Provider additions are welcome and encouraged.
+
+See `CONTRIBUTING.md` for contribution rules.
 
 ## Development
 
 ```bash
 npm install
 npm run compile
-# Press F5 in VS Code to launch Extension Development Host
 ```
+
+Run with F5 in VS Code to open the Extension Development Host.
+
+## Marketplace Readiness
+
+This repository is prepared for public publication. Before publishing:
+
+1. Ensure publisher ownership in the Visual Studio Marketplace
+2. Run `npx @vscode/vsce package`
+3. Optionally run `npx @vscode/vsce publish`

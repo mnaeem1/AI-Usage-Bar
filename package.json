@@ -1,14 +1,28 @@
 {
   "name": "ai-usage-bar",
   "displayName": "AI Usage Bar",
-  "description": "Status bar showing AI usage for Claude, OpenAI/Codex, and GitHub Copilot Chat",
-  "version": "0.1.0",
+  "description": "Status bar showing AI usage for Claude Code, OpenAI Codex, and GitHub Copilot",
+  "version": "0.8.0",
   "publisher": "ai-usage-bar",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/MohammadNaeem/AI-Usage-Bar"
   },
+  "bugs": {
+    "url": "https://github.com/MohammadNaeem/AI-Usage-Bar/issues"
+  },
+  "homepage": "https://github.com/MohammadNaeem/AI-Usage-Bar#readme",
+  "keywords": [
+    "ai",
+    "usage",
+    "copilot",
+    "codex",
+    "claude",
+    "statusbar",
+    "cursor",
+    "vscode"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -24,6 +38,22 @@
       {
         "command": "aiUsage.refresh",
         "title": "AI Usage: Refresh Now"
+      },
+      {
+        "command": "aiUsage.signInGitHub",
+        "title": "AI Usage: Sign in to GitHub (for Copilot)"
+      },
+      {
+        "command": "aiUsage.toggleClaude",
+        "title": "AI Usage: Toggle Claude Provider"
+      },
+      {
+        "command": "aiUsage.toggleCodex",
+        "title": "AI Usage: Toggle Codex Provider"
+      },
+      {
+        "command": "aiUsage.toggleCopilot",
+        "title": "AI Usage: Toggle Copilot Provider"
       }
     ],
     "configuration": {
@@ -31,38 +61,35 @@
       "properties": {
         "aiUsage.refreshSeconds": {
           "type": "number",
-          "default": 60,
-          "description": "How often (in seconds) to poll usage data."
+          "default": 120,
+          "minimum": 30,
+          "description": "How often (in seconds) to poll usage data. Minimum 30s to avoid API rate limits."
         },
-        "claudeUsage.command": {
-          "type": "string",
-          "default": "claude-code --status --json",
-          "description": "Command to fetch Claude usage JSON."
+        "aiUsage.claudeMinApiMinutes": {
+          "type": "number",
+          "default": 5,
+          "minimum": 1,
+          "description": "Minimum minutes between Claude API calls to reduce Anthropic rate-limit pressure."
         },
-        "claudeUsage.contextCommand": {
-          "type": "string",
-          "default": "claude-code --context --json",
-          "description": "Command to fetch Claude context window JSON."
+        "aiUsage.providers.claude": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Claude usage tracking."
         },
-        "openaiUsage.command": {
-          "type": "string",
-          "default": "openai-usage --json",
-          "description": "Command to fetch OpenAI usage JSON."
+        "aiUsage.providers.codex": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Codex usage tracking."
         },
-        "openaiUsage.contextCommand": {
-          "type": "string",
-          "default": "openai-model --info --json",
-          "description": "Command to fetch OpenAI context window JSON."
+        "aiUsage.providers.copilot": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Copilot usage tracking."
         },
-        "copilotUsage.command": {
-          "type": "string",
-          "default": "copilot-usage --json",
-          "description": "Command to fetch Copilot usage JSON."
-        },
-        "copilotUsage.contextCommand": {
-          "type": "string",
-          "default": "copilot-model --info --json",
-          "description": "Command to fetch Copilot context window JSON."
+        "aiUsage.debugLogs": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable verbose logs in Output > AI Usage."
         }
       }
     }
