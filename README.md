@@ -8,6 +8,11 @@ AI Usage Bar shows AI quota usage in the VS Code status bar for:
 
 Built with Cursor and open for community contributions.
 
+## Installation
+
+Install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ai-usage-bar.ai-usage-bar)
+or search **"AI Usage Bar"** in the VS Code Extensions panel.
+
 ## Features
 
 - Compact status bar view with detailed hover tooltip bars
