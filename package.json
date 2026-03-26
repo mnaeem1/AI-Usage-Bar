@@ -3,7 +3,7 @@
   "displayName": "AI Usage Bar",
   "description": "Status bar showing AI usage for Claude Code, OpenAI Codex, and GitHub Copilot",
   "version": "0.8.0",
-  "publisher": "ai-usage-bar",
+  "publisher": "MohammedNaeem",
   "license": "MIT",
   "repository": {
     "type": "git",
