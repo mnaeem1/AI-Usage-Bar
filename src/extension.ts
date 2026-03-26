@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -127,8 +127,9 @@ async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs = 1
 
 function readMacKeychain(service: string): Promise<string | null> {
   return new Promise((resolve) => {
-    exec(
-      `security find-generic-password -s "${service}" -w`,
+    execFile(
+      'security',
+      ['find-generic-password', '-s', service, '-w'],
       { timeout: 3000 },
       (err, stdout) => {
         if (err) { resolve(null); return; }
@@ -493,7 +494,7 @@ async function getVscodeGitHubToken(): Promise<string | null> {
 async function getGhCliToken(): Promise<string | null> {
   // Fast path: `gh auth token` command
   const tokenFromCmd = await runCommand('gh auth token', 5000);
-  if (tokenFromCmd && tokenFromCmd.startsWith('gh')) {
+  if (tokenFromCmd && /^(ghp_|gho_|ghs_|ghu_|github_pat_)[A-Za-z0-9_]+$/.test(tokenFromCmd)) {
     log(`Copilot: got token from gh CLI command`);
     return tokenFromCmd;
   }

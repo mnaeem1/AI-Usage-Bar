@@ -7,12 +7,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MohammadNaeem/AI-Usage-Bar"
+    "url": "https://github.com/mnaeem1/AI-Usage-Bar"
   },
   "bugs": {
-    "url": "https://github.com/MohammadNaeem/AI-Usage-Bar/issues"
+    "url": "https://github.com/mnaeem1/AI-Usage-Bar/issues"
   },
-  "homepage": "https://github.com/MohammadNaeem/AI-Usage-Bar#readme",
+  "homepage": "https://github.com/mnaeem1/AI-Usage-Bar#readme",
   "keywords": [
     "ai",
     "usage",
@@ -27,8 +27,13 @@
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Visualization"
   ],
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
   "activationEvents": [
     "onStartupFinished"
   ],
