@@ -82,6 +82,36 @@ function renderBar(pct: number, width = 8): string {
   return '\\[' + '█'.repeat(filled) + '░'.repeat(empty) + '\\]';
 }
 
+/**
+ * Returns an HTML hex color for a usage percentage.
+ * Green below 50%, then yellow → darker shades every 10% → red at 100%.
+ */
+function getUsageColor(pct: number): string {
+  if (pct < 50)   { return '#44cc88'; }   // green
+  if (pct >= 100) { return '#ff2222'; }   // red
+  // Gradient: 50%=light-yellow, 60%=yellow, 70%=amber, 80%=orange, 90%=dark-orange (each 10% darker)
+  const step = Math.min(Math.floor((pct - 50) / 10), 4);
+  return ['#ffee00', '#ffcc00', '#ffaa00', '#ff8800', '#ff5500'][step];
+}
+
+/** Returns an emoji circle conveying urgency for the given percentage. */
+function getUsageEmoji(pct: number): string {
+  if (pct >= 90) { return '🔴'; }
+  if (pct >= 70) { return '🟠'; }
+  if (pct >= 50) { return '🟡'; }
+  return '🟢';
+}
+
+/** Wraps a percentage value in an HTML color span for use in the tooltip. */
+function coloredPct(pct: number): string {
+  return `<span style="color:${getUsageColor(pct)}">${Math.round(pct)}%</span>`;
+}
+
+/** Formats a percentage with an emoji indicator for the compact status bar text. */
+function emojiPct(pct: number): string {
+  return `${getUsageEmoji(pct)}${Math.round(pct)}%`;
+}
+
 function formatCountdown(targetDate: Date): string {
   const secs = Math.max(0, Math.floor((targetDate.getTime() - Date.now()) / 1000));
   const d = Math.floor(secs / 86400);
@@ -324,8 +354,8 @@ async function fetchClaudeSegment(): Promise<ProviderSegment> {
       const segment: ProviderSegment = { ...recent };
       const ctx = getClaudeContext();
       if (ctx) {
-        segment.short = segment.short.replace(/ Ctx:\d+%/, '') + ` Ctx:${ctx.usedPct}%`;
-        segment.detail = segment.detail.replace(/ \| Ctx .*$/, '') + ` | Ctx ${renderBar(ctx.usedPct, 6)} ${ctx.usedPct}%`;
+      segment.short = segment.short.replace(/ Ctx:\S+/, '') + ` Ctx:${emojiPct(ctx.usedPct)}`;
+      segment.detail = segment.detail.replace(/ \| Ctx .*$/, '') + ` | Ctx ${renderBar(ctx.usedPct, 6)} ${coloredPct(ctx.usedPct)}`;
       }
       return segment;
     }
@@ -366,15 +396,15 @@ async function fetchClaudeSegment(): Promise<ProviderSegment> {
     const fhReset = data.five_hour?.resets_at ? formatCountdown(new Date(data.five_hour.resets_at)) : '';
     const sdReset = data.seven_day?.resets_at ? formatCountdown(new Date(data.seven_day.resets_at)) : '';
 
-    let short = `Claude 5H:${Math.round(fhPct)}% 7D:${Math.round(sdPct)}%`;
-    if (ctx) { short += ` Ctx:${ctx.usedPct}%`; }
+    let short = `Claude 5H:${emojiPct(fhPct)} 7D:${emojiPct(sdPct)}`;
+    if (ctx) { short += ` Ctx:${emojiPct(ctx.usedPct)}`; }
 
     let detail =
-      `Claude 5H ${renderBar(fhPct)} ${Math.round(fhPct)}% ${fhReset}` +
-      ` | 7D ${renderBar(sdPct)} ${Math.round(sdPct)}% ${sdReset}`;
-    if (ctx) { detail += ` | Ctx ${renderBar(ctx.usedPct, 6)} ${ctx.usedPct}%`; }
+      `Claude 5H ${renderBar(fhPct)} ${coloredPct(fhPct)} ${fhReset}` +
+      ` | 7D ${renderBar(sdPct)} ${coloredPct(sdPct)} ${sdReset}`;
+    if (ctx) { detail += ` | Ctx ${renderBar(ctx.usedPct, 6)} ${coloredPct(ctx.usedPct)}`; }
     if (data.seven_day_sonnet) {
-      detail += ` | Sonnet ${Math.round(data.seven_day_sonnet.utilization)}%`;
+      detail += ` | Sonnet ${coloredPct(data.seven_day_sonnet.utilization)}`;
     }
 
     const segment: ProviderSegment = { label, short, detail, maxPct: Math.max(fhPct, sdPct) };
@@ -428,10 +458,10 @@ async function fetchCodexSegment(): Promise<ProviderSegment> {
       const fhReset = data['5h']?.resets_at ? formatCountdown(new Date(data['5h'].resets_at)) : '';
       const sdReset = data['7d']?.resets_at ? formatCountdown(new Date(data['7d'].resets_at)) : '';
 
-      const short = `Codex 5H:${Math.round(fhPct)}% 7D:${Math.round(sdPct)}%`;
+      const short = `Codex 5H:${emojiPct(fhPct)} 7D:${emojiPct(sdPct)}`;
       const detail =
-        `Codex (${data.plan ?? '?'}) 5H ${renderBar(fhPct)} ${Math.round(fhPct)}% ${fhReset}` +
-        ` | 7D ${renderBar(sdPct)} ${Math.round(sdPct)}% ${sdReset}`;
+        `Codex (${data.plan ?? '?'}) 5H ${renderBar(fhPct)} ${coloredPct(fhPct)} ${fhReset}` +
+        ` | 7D ${renderBar(sdPct)} ${coloredPct(sdPct)} ${sdReset}`;
 
       const segment: ProviderSegment = { label, short, detail, maxPct: Math.max(fhPct, sdPct) };
       setCache('codex', segment);
@@ -567,8 +597,8 @@ async function fetchCopilotSegment(): Promise<ProviderSegment> {
       : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1);
     const resetStr = formatCountdown(resetDate);
 
-    const short = `Copilot ${Math.round(pct)}%`;
-    const detail = `Copilot ${renderBar(pct)} ${used}/${pi.entitlement} (${pct}%) resets ${resetStr}`;
+    const short = `Copilot ${emojiPct(pct)}`;
+    const detail = `Copilot ${renderBar(pct)} ${used}/${pi.entitlement} (${coloredPct(pct)}) resets ${resetStr}`;
 
     const segment: ProviderSegment = { label, short, detail, maxPct: pct };
     setCache('copilot', segment);
@@ -621,13 +651,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
       const maxPct = Math.max(claude.maxPct, codex.maxPct, copilot.maxPct);
 
-      if (maxPct >= 90) {
-        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-      } else if (maxPct >= 80) {
-        statusBar.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
-      } else {
-        statusBar.backgroundColor = undefined;
-      }
+      statusBar.backgroundColor = undefined;
       statusBar.color = undefined;
 
       const enabledShorts = [
