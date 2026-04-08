@@ -10,8 +10,26 @@ Built with Cursor and open for community contributions.
 
 ## Installation
 
+### From the Marketplace
+
 Install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ai-usage-bar.ai-usage-bar)
 or search **"AI Usage Bar"** in the VS Code Extensions panel.
+
+### Manual Installation (VSIX)
+
+If you prefer to install directly from the packaged file (e.g. in offline or restricted environments):
+
+1. Download the latest `.vsix` file from the [repository](https://github.com/mnaeem1/AI-Usage-Bar) (e.g. `ai-usage-bar-0.8.0.vsix`).
+2. Open VS Code.
+3. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run **"Extensions: Install from VSIX…"**.
+4. Browse to and select the downloaded `.vsix` file.
+5. Reload VS Code when prompted.
+
+Alternatively, install via the terminal:
+
+```bash
+code --install-extension ai-usage-bar-0.8.0.vsix
+```
 
 ## Features
 
