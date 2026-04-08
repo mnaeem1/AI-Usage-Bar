@@ -19,7 +19,7 @@ or search **"AI Usage Bar"** in the VS Code Extensions panel.
 
 If you prefer to install directly from the packaged file (e.g. in offline or restricted environments):
 
-1. Download the latest `.vsix` file from the [repository](https://github.com/mnaeem1/AI-Usage-Bar) (e.g. `ai-usage-bar-0.8.0.vsix`).
+1. Download the latest `.vsix` file from the [repository](https://github.com/mnaeem1/AI-Usage-Bar) (e.g. `ai-usage-bar-0.9.0.vsix`).
 2. Open VS Code.
 3. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run **"Extensions: Install from VSIX…"**.
 4. Browse to and select the downloaded `.vsix` file.
@@ -28,12 +28,13 @@ If you prefer to install directly from the packaged file (e.g. in offline or res
 Alternatively, install via the terminal:
 
 ```bash
-code --install-extension ai-usage-bar-0.8.0.vsix
+code --install-extension ai-usage-bar-0.9.0.vsix
 ```
 
 ## Features
 
-- Compact status bar view with detailed hover tooltip bars
+- **Concise status bar**: shows daily usage per provider at a glance — e.g. `Claude 🟡58% | Codex 🟠74% | Copilot 🟢21%`. Full provider names and emoji color indicators (🟢 low · 🟡 medium · 🟠 high · 🔴 critical) are always visible.
+- **Detailed hover tooltip**: hover the status bar to see full metrics — 5H/7D usage bars, remaining/reset times, plan, context usage, request counts, and auth/error state per provider.
 - Click status bar to refresh instantly
 - Provider-level toggles (enable only what you use)
 - Works across local, WSL, remote SSH, and Codespaces

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.0
+
+- Updated status bar to show a concise daily-usage summary per provider: `Claude 🟡58% | Codex 🟠74% | Copilot 🟢21%`.
+- Tooltip now contains all detailed metrics: 5H/7D usage bars, reset times, plan, context usage, counts, and auth/error states.
+- Full provider names and emoji color indicators are preserved in the status bar.
+- Status bar block/background color behavior is unchanged.
+
 ## 0.8.0
 
 - Added provider toggles for Claude, Codex, and Copilot.

@@ -396,7 +396,7 @@ async function fetchClaudeSegment(): Promise<ProviderSegment> {
     const fhReset = data.five_hour?.resets_at ? formatCountdown(new Date(data.five_hour.resets_at)) : '';
     const sdReset = data.seven_day?.resets_at ? formatCountdown(new Date(data.seven_day.resets_at)) : '';
 
-    let short = `Claude 5H:${emojiPct(fhPct)} 7D:${emojiPct(sdPct)}`;
+    let short = `Claude ${emojiPct(fhPct)}`;
     if (ctx) { short += ` Ctx:${emojiPct(ctx.usedPct)}`; }
 
     let detail =
@@ -458,7 +458,7 @@ async function fetchCodexSegment(): Promise<ProviderSegment> {
       const fhReset = data['5h']?.resets_at ? formatCountdown(new Date(data['5h'].resets_at)) : '';
       const sdReset = data['7d']?.resets_at ? formatCountdown(new Date(data['7d'].resets_at)) : '';
 
-      const short = `Codex 5H:${emojiPct(fhPct)} 7D:${emojiPct(sdPct)}`;
+      const short = `Codex ${emojiPct(fhPct)}`;
       const detail =
         `Codex (${data.plan ?? '?'}) 5H ${renderBar(fhPct)} ${coloredPct(fhPct)} ${fhReset}` +
         ` | 7D ${renderBar(sdPct)} ${coloredPct(sdPct)} ${sdReset}`;
